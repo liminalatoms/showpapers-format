@@ -34,6 +34,7 @@ Readable collections expose their included contents to recipients. These tools v
 - [Schemas and runtime](tool/): use `formatVersion: 4` for current collections. Compatibility modules remain bundled for supported older files.
 - [Synthetic test corpus](examples/corpus.json): valid and invalid current-format collections with expected outcomes.
 - [Published whitepaper source](whitepaper/whitepaper-source.zip)
+- [Contributing](CONTRIBUTING.md): issues, pull requests and publishing.
 
 ```sh
 python3 tool/showpapers_format.py schema --kind build-spec --version 4
