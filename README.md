@@ -48,4 +48,6 @@ Use the root [SKILL.md](SKILL.md) to create, edit or validate collections. Its d
 
 ## License
 
-[Apache License 2.0](LICENSE).
+[Apache License 2.0](LICENSE). When redistributing this work or derivatives, preserve the applicable attribution in [NOTICE](NOTICE) as required by the license.
+
+For software, research or patent applications that rely on this work, please cite the repository revision and [protocol whitepaper](whitepaper/whitepaper.pdf). [CITATION.cff](CITATION.cff) supplies citation details. This citation request adds no license restriction and does not replace any applicable patent-disclosure duties.

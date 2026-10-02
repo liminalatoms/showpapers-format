@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use ShowPapers in software, research or patent documentation, please cite the repository revision and the protocol whitepaper. This is a citation request, not an additional license condition."
+type: software
+title: "ShowPapers Format"
+authors:
+  - name: "ShowPapers contributors"
+repository-code: "https://github.com/liminalatoms/showpapers-format"
+url: "https://protocol.showpapers.app/"
+license: Apache-2.0
+preferred-citation:
+  type: report
+  title: "The ShowPapers Protocol: From Scattered Documents to Usable, Portable Records"
+  authors:
+    - family-names: Pherwani
+      given-names: Nirbhay
+    - family-names: Kulkarni
+      given-names: Ameya
+  year: 2026
+  month: 10
+  url: "https://protocol.showpapers.app/whitepaper.pdf"
