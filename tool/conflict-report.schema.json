@@ -1,0 +1,570 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:conflict-report:1",
+  "title": "ShowPapers Conflict Report And Resolution Receipt 1",
+  "description": "Closed local results. IDs, kinds, field names and digests only unless an explicit content review was requested. Records outside the caller's scope are counted, never named. Sensitive correlatable metadata, not analytics.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/report"
+    },
+    {
+      "$ref": "#/$defs/receipt"
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740990
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "revision",
+        "archiveSha256"
+      ],
+      "properties": {
+        "revision": {
+          "$ref": "#/$defs/revision"
+        },
+        "archiveSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "conflict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "conflictId",
+        "kind",
+        "recordType",
+        "id",
+        "fields",
+        "resolutions",
+        "dependents",
+        "hiddenDependentCount"
+      ],
+      "properties": {
+        "conflictId": {
+          "$ref": "#/$defs/sha256"
+        },
+        "kind": {
+          "enum": [
+            "edit-vs-edit",
+            "add-vs-add",
+            "edit-vs-delete",
+            "delete-vs-edit",
+            "reference-vs-delete",
+            "delete-vs-reference"
+          ]
+        },
+        "recordType": {
+          "enum": [
+            "collection",
+            "paper",
+            "note",
+            "folder"
+          ]
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "fields": {
+          "type": "array",
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "title",
+              "original",
+              "content",
+              "paperIds",
+              "name",
+              "noteIds",
+              "paperOrder",
+              "noteOrder",
+              "folderOrder"
+            ]
+          }
+        },
+        "resolutions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "keepMine",
+              "keepTheirs",
+              "keepBoth"
+            ]
+          }
+        },
+        "dependents": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "recordType",
+              "id"
+            ],
+            "properties": {
+              "recordType": {
+                "enum": [
+                  "note",
+                  "folder"
+                ]
+              },
+              "id": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          }
+        },
+        "hiddenDependentCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 200
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "base",
+            "mine",
+            "theirs"
+          ],
+          "properties": {
+            "base": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object"
+                }
+              ]
+            },
+            "mine": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object"
+                }
+              ]
+            },
+            "theirs": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          "description": "Present only for an explicit content review, after scope and field-policy projection."
+        }
+      }
+    },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ok",
+        "conflictVersion",
+        "collectionId",
+        "formatVersion",
+        "base",
+        "theirs",
+        "mine",
+        "conflicts",
+        "conflictCount",
+        "hiddenConflictCount",
+        "mergeable",
+        "hiddenChangeCount",
+        "reportSha256"
+      ],
+      "properties": {
+        "ok": {
+          "const": true
+        },
+        "conflictVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "collectionId": {
+          "$ref": "#/$defs/id"
+        },
+        "formatVersion": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3
+          ]
+        },
+        "base": {
+          "$ref": "#/$defs/snapshot"
+        },
+        "theirs": {
+          "$ref": "#/$defs/snapshot"
+        },
+        "mine": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "revision",
+            "sha256"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "archive",
+                "request"
+              ]
+            },
+            "revision": {
+              "$ref": "#/$defs/revision"
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        },
+        "conflicts": {
+          "type": "array",
+          "maxItems": 301,
+          "items": {
+            "$ref": "#/$defs/conflict"
+          }
+        },
+        "conflictCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 301
+        },
+        "hiddenConflictCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 301
+        },
+        "mergeable": {
+          "type": "array",
+          "maxItems": 301,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "recordType",
+              "id",
+              "change",
+              "fields"
+            ],
+            "properties": {
+              "recordType": {
+                "enum": [
+                  "collection",
+                  "paper",
+                  "note",
+                  "folder"
+                ]
+              },
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "change": {
+                "enum": [
+                  "add",
+                  "edit",
+                  "remove"
+                ]
+              },
+              "fields": {
+                "type": "array",
+                "maxItems": 4,
+                "uniqueItems": true,
+                "items": {
+                  "enum": [
+                    "title",
+                    "original",
+                    "content",
+                    "paperIds",
+                    "name",
+                    "noteIds",
+                    "paperOrder",
+                    "noteOrder",
+                    "folderOrder"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "hiddenChangeCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 301
+        },
+        "reportSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ok",
+        "validated",
+        "applied",
+        "conflictVersion",
+        "collectionId",
+        "formatVersion",
+        "base",
+        "theirs",
+        "mine",
+        "resolutionId",
+        "reportSha256",
+        "fromRevision",
+        "toRevision",
+        "resolved",
+        "mergedChangeCount",
+        "noChange",
+        "changes",
+        "withheld",
+        "hiddenWithheldCount"
+      ],
+      "properties": {
+        "ok": {
+          "const": true
+        },
+        "validated": {
+          "const": true
+        },
+        "applied": {
+          "type": "boolean"
+        },
+        "conflictVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "collectionId": {
+          "$ref": "#/$defs/id"
+        },
+        "formatVersion": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3
+          ]
+        },
+        "base": {
+          "$ref": "#/$defs/snapshot"
+        },
+        "theirs": {
+          "$ref": "#/$defs/snapshot"
+        },
+        "mine": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "revision",
+            "sha256"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "archive",
+                "request"
+              ]
+            },
+            "revision": {
+              "$ref": "#/$defs/revision"
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        },
+        "resolutionId": {
+          "$ref": "#/$defs/id"
+        },
+        "reportSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "fromRevision": {
+          "$ref": "#/$defs/revision"
+        },
+        "toRevision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "resolved": {
+          "type": "array",
+          "maxItems": 301,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "conflictId",
+              "choice"
+            ],
+            "properties": {
+              "conflictId": {
+                "$ref": "#/$defs/sha256"
+              },
+              "choice": {
+                "enum": [
+                  "keepMine",
+                  "keepTheirs",
+                  "keepBoth"
+                ]
+              },
+              "copyId": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          }
+        },
+        "mergedChangeCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 301
+        },
+        "noChange": {
+          "type": "boolean"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "type",
+              "recordType",
+              "id"
+            ],
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "recordType": {
+                "enum": [
+                  "collection",
+                  "paper",
+                  "note",
+                  "folder"
+                ]
+              },
+              "id": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          }
+        },
+        "alreadyApplied": {
+          "type": "boolean"
+        },
+        "resultArchiveSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "withheld": {
+          "description": "The caller's own changes left out because it explicitly kept the other side's deletion of a record they reference.",
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "recordType",
+              "id",
+              "change",
+              "fields"
+            ],
+            "properties": {
+              "recordType": {
+                "enum": [
+                  "collection",
+                  "paper",
+                  "note",
+                  "folder"
+                ]
+              },
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "change": {
+                "enum": [
+                  "add",
+                  "edit",
+                  "remove"
+                ]
+              },
+              "fields": {
+                "type": "array",
+                "maxItems": 4,
+                "uniqueItems": true,
+                "items": {
+                  "enum": [
+                    "title",
+                    "original",
+                    "content",
+                    "paperIds",
+                    "name",
+                    "noteIds",
+                    "paperOrder",
+                    "noteOrder",
+                    "folderOrder"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "hiddenWithheldCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 200
+        }
+      }
+    }
+  }
+}

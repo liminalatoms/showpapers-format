@@ -1,0 +1,371 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:contents:1",
+  "title": "ShowPapers archive contents statement v1",
+  "$comment": "Produced by the reference `contents` command only after the whole archive, every declared payload, size, SHA-256 digest, media signature and reference has been validated. It is a derived, content-free description of one selected readable collection: it never contains titles, names, Note text or original bytes, and it is not stored inside the archive. IDs, paths and digests remain private correlatable metadata, not analytics. coverage and notIncluded state what readable profiles 1-3 deliberately omit; a statement never describes a full-vault backup.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ok",
+    "contentsVersion",
+    "specificationVersion",
+    "format",
+    "formatVersion",
+    "protection",
+    "collectionId",
+    "revision",
+    "manifestSchema",
+    "noteRepresentation",
+    "operationProtocolVersions",
+    "originals",
+    "notes",
+    "folders",
+    "counts",
+    "links",
+    "totalPayloadBytes",
+    "verified",
+    "coverage",
+    "notIncluded",
+    "selectedCollection",
+    "fullVaultBackup"
+  ],
+  "properties": {
+    "ok": {
+      "const": true
+    },
+    "contentsVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "specificationVersion": {
+      "type": "string",
+      "pattern": "^1\\.[0-9]+\\.[0-9]+$"
+    },
+    "format": {
+      "const": "showpapers"
+    },
+    "formatVersion": {
+      "type": "integer",
+      "enum": [
+        1,
+        2,
+        3
+      ]
+    },
+    "protection": {
+      "const": "readable"
+    },
+    "collectionId": {
+      "$ref": "#/$defs/id"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "manifestSchema": {
+      "enum": [
+        "urn:showpapers:format:manifest:1",
+        "urn:showpapers:format:manifest:2",
+        "urn:showpapers:format:manifest:3"
+      ]
+    },
+    "noteRepresentation": {
+      "enum": [
+        "plain-utf8",
+        "rich-document",
+        "native-note-record"
+      ]
+    },
+    "operationProtocolVersions": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "integer",
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ]
+      }
+    },
+    "originals": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "path",
+          "mediaType",
+          "size",
+          "sha256"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^originals/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(pdf|png|jpg|webp)$"
+          },
+          "mediaType": {
+            "enum": [
+              "application/pdf",
+              "image/png",
+              "image/jpeg",
+              "image/webp"
+            ]
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20971520
+          },
+          "sha256": {
+            "$ref": "#/$defs/sha256"
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "path",
+          "size",
+          "sha256",
+          "paperReferences"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^notes/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(txt|json)$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 524288
+          },
+          "sha256": {
+            "$ref": "#/$defs/sha256"
+          },
+          "paperReferences": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          }
+        }
+      }
+    },
+    "folders": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "papers",
+          "notes"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "papers": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "notes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          }
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "originals",
+        "notes",
+        "folders"
+      ],
+      "properties": {
+        "originals": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "notes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "folders": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "notePaperReferences",
+        "folderPaperMemberships",
+        "folderNoteMemberships",
+        "inlinePaperLinks",
+        "legacyRowAttachments"
+      ],
+      "properties": {
+        "notePaperReferences": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "folderPaperMemberships": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "folderNoteMemberships": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "inlinePaperLinks": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64000
+        },
+        "legacyRowAttachments": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64000
+        }
+      }
+    },
+    "totalPayloadBytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 104857600
+    },
+    "verified": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "everyDeclaredPayloadPresent",
+        "noUndeclaredEntries",
+        "sizesAndSha256",
+        "mediaSignatures",
+        "references"
+      ],
+      "properties": {
+        "everyDeclaredPayloadPresent": {
+          "const": true
+        },
+        "noUndeclaredEntries": {
+          "const": true
+        },
+        "sizesAndSha256": {
+          "const": true
+        },
+        "mediaSignatures": {
+          "const": true
+        },
+        "references": {
+          "const": true
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "originals",
+        "notes",
+        "groups",
+        "links",
+        "details",
+        "people",
+        "reviewHistory"
+      ],
+      "properties": {
+        "originals": {
+          "const": true
+        },
+        "notes": {
+          "const": true
+        },
+        "groups": {
+          "const": true
+        },
+        "links": {
+          "const": true
+        },
+        "details": {
+          "const": false
+        },
+        "people": {
+          "const": false
+        },
+        "reviewHistory": {
+          "const": false
+        }
+      }
+    },
+    "notIncluded": {
+      "type": "array",
+      "minItems": 11,
+      "maxItems": 11,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "reading-and-ocr-output",
+          "reviewed-details",
+          "review-history",
+          "people-and-people-groups",
+          "sdk-organization-relationships-and-decisions",
+          "automatic-placement-and-folder-rules",
+          "reminders",
+          "conversations-and-ai-history",
+          "app-settings",
+          "keys-and-credentials",
+          "native-vault-envelopes"
+        ]
+      }
+    },
+    "selectedCollection": {
+      "const": true
+    },
+    "fullVaultBackup": {
+      "const": false
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}

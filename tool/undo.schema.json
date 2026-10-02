@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:undo:1",
+  "title": "ShowPapers Conditional Saved-Copy Undo Request 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["undoVersion", "undoId", "collectionId", "formatVersion", "beforeRevision", "beforeArchiveSha256", "expectedRevision", "expectedArchiveSha256", "forwardRequestSha256", "constraintsSha256"],
+  "properties": {
+    "undoVersion": {"type": "integer", "const": 1},
+    "undoId": {"$ref": "#/$defs/id"},
+    "collectionId": {"$ref": "#/$defs/id"},
+    "formatVersion": {"type": "integer", "enum": [1, 2, 3]},
+    "beforeRevision": {"type": "integer", "minimum": 1, "maximum": 9007199254740989},
+    "expectedRevision": {"type": "integer", "minimum": 2, "maximum": 9007199254740990},
+    "beforeArchiveSha256": {"$ref": "#/$defs/sha256"},
+    "expectedArchiveSha256": {"$ref": "#/$defs/sha256"},
+    "forwardRequestSha256": {"$ref": "#/$defs/sha256"},
+    "constraintsSha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

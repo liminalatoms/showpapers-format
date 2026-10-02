@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:scope-constraints:1",
+  "title": "ShowPapers caller-supplied scope constraints v1",
+  "$comment": "This local file constrains the offline command. It is not signed or authenticated permission; anyone who can write it can choose its contents. A trusted future host must issue and enforce real grants outside archive data.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "scopeVersion",
+    "collectionId",
+    "actions",
+    "paperIds",
+    "noteIds",
+    "folderIds"
+  ],
+  "properties": {
+    "scopeVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "collectionId": {
+      "$ref": "#/$defs/id"
+    },
+    "actions": {
+      "type": "array",
+      "maxItems": 9,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "folder.add",
+          "folder.addMembers",
+          "folder.remove",
+          "folder.removeMembers",
+          "folder.rename",
+          "note.add",
+          "note.edit",
+          "note.remove",
+          "record.rename"
+        ]
+      }
+    },
+    "paperIds": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "maxItems": 132,
+      "uniqueItems": true
+    },
+    "noteIds": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "maxItems": 132,
+      "uniqueItems": true
+    },
+    "folderIds": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "maxItems": 132,
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    }
+  }
+}

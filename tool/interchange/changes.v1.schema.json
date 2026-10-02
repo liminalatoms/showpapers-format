@@ -1,0 +1,1426 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:changes:1",
+  "title": "ShowPapers changes v1",
+  "$comment": "What an AI app hands back when it cannot write a .showpapers file: proposed changes to one collection, made against the exact archive in base (from the companion). Every change is a proposal: the app shows each one for review, marks values as coming from the generator, and applies only what the person accepts. Nothing is deleted or confirmed without the person. Recognize it by schema == urn:showpapers:changes:1. The reference tool applies a changes document to its base archive and writes a new profile 4 file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "base",
+    "generator",
+    "summary",
+    "changes"
+  ],
+  "properties": {
+    "schema": {
+      "const": "urn:showpapers:changes:1"
+    },
+    "base": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "collectionId",
+        "revision",
+        "archiveSha256"
+      ],
+      "properties": {
+        "collectionId": {
+          "$ref": "#/$defs/id"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "archiveSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "generator": {
+      "$ref": "#/$defs/generator"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 500,
+      "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*$"
+    },
+    "changes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 500,
+      "items": {
+        "$ref": "#/$defs/change"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "collectionTitle": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+    },
+    "paperTitle": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff/\\\\]+$",
+      "$comment": "Unicode scalars. The apps' native title rule: trimmed, no control characters, no '/' or '\\\\'."
+    },
+    "noteTitle": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*[^\\s\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff][^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*$",
+      "$comment": "Profile 3 rule: edge whitespace kept, at least one non-whitespace scalar."
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+    },
+    "rule": {
+      "$comment": "Automatic filing. autoAdd needs at least one document type. Clause fields are distinct; only the six date fields accept operators other than equals, and their values are ISO dates.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "documentTypes",
+        "autoAdd",
+        "excludedPaperIds",
+        "condition"
+      ],
+      "properties": {
+        "documentTypes": {
+          "type": "array",
+          "maxItems": 11,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "evidence.identity.foreign-passport",
+              "state.issued.us-passport",
+              "state.issued.visa-foil",
+              "cbp.record.i-94",
+              "ice.sevp.issued.i-20",
+              "uscis.issued.i-551",
+              "uscis.issued.i-766",
+              "uscis.notice.i-797",
+              "uscis.notice.i-797a",
+              "uscis.notice.i-797b",
+              "uscis.notice.i-797c"
+            ]
+          }
+        },
+        "autoAdd": {
+          "type": "boolean"
+        },
+        "excludedPaperIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "caseReceipt"
+                  ],
+                  "properties": {
+                    "caseReceipt": {
+                      "type": "string",
+                      "minLength": 13,
+                      "maxLength": 13,
+                      "pattern": "^(EAC|WAC|LIN|SRC|MSC|NBC|IOE|YSC)[0-9]{10}$"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "reviewedDetails"
+                  ],
+                  "properties": {
+                    "reviewedDetails": {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "field",
+                          "operator",
+                          "value"
+                        ],
+                        "properties": {
+                          "field": {
+                            "enum": [
+                              "issuing-country",
+                              "nationality",
+                              "citizenship",
+                              "employer",
+                              "school",
+                              "petitioner",
+                              "beneficiary",
+                              "visa-class",
+                              "admission-class",
+                              "authorization-category",
+                              "expiration-date",
+                              "valid-until",
+                              "program-end-date",
+                              "admit-until",
+                              "received-date",
+                              "notice-date"
+                            ]
+                          },
+                          "operator": {
+                            "enum": [
+                              "equals",
+                              "before",
+                              "on-or-before",
+                              "after",
+                              "on-or-after"
+                            ]
+                          },
+                          "value": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 160,
+                            "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "folder": {
+      "$comment": "A personal folder. Array order is retained among siblings. Folders hold papers only. Sibling names are unique ignoring case and limited in UTF-16 units. Optional folder parent: omitted or null means Other Folders; root means the library root; a canonical UUID names another personal folder in this collection; category IDs name built-in parents. Parent references must resolve without self-links or cycles. Sibling names are unique ignoring case; null and other-folders share one sibling namespace.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "color",
+        "icon",
+        "purpose",
+        "rule",
+        "paperIds"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$",
+          "x-showpapers-maxUtf16CodeUnits": 80
+        },
+        "color": {
+          "enum": [
+            "blue",
+            "teal",
+            "green",
+            "amber",
+            "coral",
+            "purple",
+            "gray"
+          ]
+        },
+        "icon": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "enum": [
+                "folder",
+                "paper",
+                "passport",
+                "identity",
+                "travel",
+                "study",
+                "work",
+                "receipt",
+                "shield",
+                "people",
+                "home",
+                "checklist",
+                "appointment"
+              ]
+            }
+          ]
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 240,
+          "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*$",
+          "x-showpapers-maxUtf16CodeUnits": 240
+        },
+        "rule": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/rule"
+            }
+          ]
+        },
+        "paperIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "parentId": {
+          "$comment": "Optional folder parent: omitted or null means Other Folders; root means the library root; a canonical UUID names another personal folder in this collection; category IDs name built-in parents. Parent references must resolve without self-links or cycles. Sibling names are unique ignoring case; null and other-folders share one sibling namespace.",
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "enum": [
+                "root",
+                "identity",
+                "visas",
+                "notices",
+                "applications",
+                "residency",
+                "work-authorization",
+                "travel-entry",
+                "study",
+                "home",
+                "finance",
+                "health",
+                "education",
+                "work",
+                "family",
+                "legal",
+                "other",
+                "permits",
+                "other-folders"
+              ]
+            },
+            {
+              "$ref": "#/$defs/id"
+            }
+          ]
+        }
+      }
+    },
+    "person": {
+      "$comment": "Names are unique ignoring case; at most one person is the owner (isMe).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "isMe"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+        },
+        "isMe": {
+          "type": "boolean"
+        }
+      }
+    },
+    "icon": {
+      "enum": [
+        "folder",
+        "paper",
+        "passport",
+        "identity",
+        "travel",
+        "study",
+        "work",
+        "receipt",
+        "shield",
+        "people",
+        "home",
+        "checklist",
+        "appointment"
+      ]
+    },
+    "unit": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "kind": {
+      "enum": [
+        "generic",
+        "i20",
+        "i94",
+        "passport",
+        "visa",
+        "i797",
+        "employment-authorization",
+        "drivers-license",
+        "social-security",
+        "birth-certificate",
+        "marriage-certificate",
+        "tax",
+        "insurance"
+      ]
+    },
+    "fieldKey": {
+      "enum": [
+        "program-start-date",
+        "program-end-date",
+        "sevis-id",
+        "admission-date",
+        "admit-until",
+        "class-of-admission",
+        "admission-record-number",
+        "given-name",
+        "family-name",
+        "date-of-birth",
+        "country-of-birth",
+        "country-of-citizenship",
+        "nationality",
+        "document-number",
+        "passport-number",
+        "issuing-country",
+        "issue-date",
+        "expiration-date",
+        "place-of-birth",
+        "sex",
+        "full-name",
+        "receipt-number",
+        "case-type",
+        "notice-type",
+        "notice-date",
+        "received-date",
+        "priority-date",
+        "petitioner",
+        "beneficiary",
+        "classification",
+        "valid-from",
+        "valid-until",
+        "visa-class",
+        "visa-entries",
+        "visa-control-number",
+        "issuing-post",
+        "uscis-number",
+        "card-number",
+        "authorization-category",
+        "license-number",
+        "license-class",
+        "license-restrictions",
+        "license-endorsements",
+        "social-security-number",
+        "certificate-number",
+        "registration-number",
+        "registration-date",
+        "mother-name",
+        "father-name",
+        "child-name",
+        "marriage-date",
+        "marriage-place",
+        "spouse-one",
+        "spouse-two",
+        "policy-number",
+        "member-id",
+        "group-number",
+        "insured-name",
+        "insurer",
+        "coverage-start-date",
+        "coverage-end-date",
+        "tax-form",
+        "tax-year",
+        "employer-name",
+        "employer-identification-number",
+        "taxpayer-name",
+        "school-name",
+        "school-code",
+        "education-level",
+        "major",
+        "second-major",
+        "estimated-total-cost",
+        "student-personal-funds",
+        "school-funds",
+        "other-funds",
+        "on-campus-employment-funds",
+        "funding-period",
+        "other"
+      ]
+    },
+    "valueType": {
+      "enum": [
+        "text",
+        "date",
+        "duration-of-status"
+      ]
+    },
+    "isoDate": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 10,
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
+    },
+    "region": {
+      "$comment": "Normalized to the rendered page (0..1). box is [left, top, right, bottom] with left <= right and top <= bottom.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "box",
+        "polygon"
+      ],
+      "properties": {
+        "box": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": {
+                "$ref": "#/$defs/unit"
+              }
+            }
+          ]
+        },
+        "polygon": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "$ref": "#/$defs/unit"
+            }
+          }
+        }
+      }
+    },
+    "evidence": {
+      "oneOf": [
+        {
+          "$comment": "A line of this paper's reading (readings/<id>.json must exist and contain it).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "block",
+            "line"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 199
+            },
+            "block": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1999
+            },
+            "line": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9999
+            }
+          }
+        },
+        {
+          "$comment": "Text quoted from the original page by an external agent, with an optional location. Not an OCR line.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "quote",
+            "region"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 199
+            },
+            "quote": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192,
+              "pattern": "^[^\\u0000-\\u0008\\u000b-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*$"
+            },
+            "region": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "#/$defs/region"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "changeDetail": {
+      "$comment": "A proposed detail. It arrives with origin agent and stays pending until the person reviews it. label is required for key other.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "key",
+        "label",
+        "value",
+        "normalizedValue",
+        "valueType",
+        "confidence",
+        "evidence"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "key": {
+          "$ref": "#/$defs/fieldKey"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/label"
+            }
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "normalizedValue": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 4096
+            }
+          ]
+        },
+        "valueType": {
+          "$ref": "#/$defs/valueType"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/unit"
+            }
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/evidence"
+          }
+        }
+      }
+    },
+    "generator": {
+      "$comment": "The program that wrote this file, not a signature. Apps write {\"name\":\"ShowPapers\",\"platform\":\"android\"|\"ios\",\"version\":<app version>}.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "platform",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+        },
+        "platform": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+        }
+      }
+    },
+    "reminder": {
+      "$comment": "source detail names a date detail of this paper with one of the keys expiration-date, valid-until, program-end-date, admit-until, coverage-end-date; source date has detailId null.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "detailId",
+        "date",
+        "leadDays",
+        "enabled"
+      ],
+      "properties": {
+        "source": {
+          "enum": [
+            "detail",
+            "date"
+          ]
+        },
+        "detailId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 96
+            }
+          ]
+        },
+        "date": {
+          "$ref": "#/$defs/isoDate"
+        },
+        "leadDays": {
+          "type": "integer",
+          "enum": [
+            7,
+            14,
+            30
+          ]
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      }
+    },
+    "change": {
+      "oneOf": [
+        {
+          "$comment": "Rename the collection.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "title"
+          ],
+          "properties": {
+            "op": {
+              "const": "collection.rename"
+            },
+            "title": {
+              "$ref": "#/$defs/collectionTitle"
+            }
+          }
+        },
+        {
+          "$comment": "Propose a new paper title.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "paperId",
+            "title"
+          ],
+          "properties": {
+            "op": {
+              "const": "paper.rename"
+            },
+            "paperId": {
+              "$ref": "#/$defs/id"
+            },
+            "title": {
+              "$ref": "#/$defs/paperTitle"
+            }
+          }
+        },
+        {
+          "$comment": "Propose a paper type. custom only with kind generic. Stored as the paper's type.agentSuggestion.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "paperId",
+            "kind",
+            "custom",
+            "confidence"
+          ],
+          "properties": {
+            "op": {
+              "const": "paper.setType"
+            },
+            "paperId": {
+              "$ref": "#/$defs/id"
+            },
+            "kind": {
+              "$ref": "#/$defs/kind"
+            },
+            "custom": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "#/$defs/label"
+                }
+              ]
+            },
+            "confidence": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "#/$defs/unit"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "$comment": "Replace the people assigned to a paper.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "paperId",
+            "personIds"
+          ],
+          "properties": {
+            "op": {
+              "const": "paper.setPeople"
+            },
+            "paperId": {
+              "$ref": "#/$defs/id"
+            },
+            "personIds": {
+              "type": "array",
+              "maxItems": 64,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          }
+        },
+        {
+          "$comment": "Place a paper in a built-in folder (null: automatic).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "paperId",
+            "builtInFolder"
+          ],
+          "properties": {
+            "op": {
+              "const": "paper.setBuiltInFolder"
+            },
+            "paperId": {
+              "$ref": "#/$defs/id"
+            },
+            "builtInFolder": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "enum": [
+                    "identity",
+                    "visas",
+                    "notices",
+                    "applications",
+                    "residency",
+                    "work-authorization",
+                    "travel-entry",
+                    "study",
+                    "home",
+                    "finance",
+                    "health",
+                    "education",
+                    "work",
+                    "family",
+                    "legal",
+                    "other"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "$comment": "Set or clear a paper's reminder.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "paperId",
+            "reminder"
+          ],
+          "properties": {
+            "op": {
+              "const": "paper.setReminder"
+            },
+            "paperId": {
+              "$ref": "#/$defs/id"
+            },
+            "reminder": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "#/$defs/reminder"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "$comment": "Pin a paper (appended to the pinned order).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "paperId"
+          ],
+          "properties": {
+            "op": {
+              "const": "paper.pin"
+            },
+            "paperId": {
+              "$ref": "#/$defs/id"
+            }
+          }
+        },
+        {
+          "$comment": "Unpin a paper.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "paperId"
+          ],
+          "properties": {
+            "op": {
+              "const": "paper.unpin"
+            },
+            "paperId": {
+              "$ref": "#/$defs/id"
+            }
+          }
+        },
+        {
+          "$comment": "Propose a new detail.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "paperId",
+            "detail"
+          ],
+          "properties": {
+            "op": {
+              "const": "detail.add"
+            },
+            "paperId": {
+              "$ref": "#/$defs/id"
+            },
+            "detail": {
+              "$ref": "#/$defs/changeDetail"
+            }
+          }
+        },
+        {
+          "$comment": "Propose removing a detail.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "paperId",
+            "detailId"
+          ],
+          "properties": {
+            "op": {
+              "const": "detail.remove"
+            },
+            "paperId": {
+              "$ref": "#/$defs/id"
+            },
+            "detailId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 96
+            }
+          }
+        },
+        {
+          "$comment": "Add a person.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "person"
+          ],
+          "properties": {
+            "op": {
+              "const": "person.add"
+            },
+            "person": {
+              "$ref": "#/$defs/person"
+            }
+          }
+        },
+        {
+          "$comment": "Rename a person.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "personId",
+            "name"
+          ],
+          "properties": {
+            "op": {
+              "const": "person.rename"
+            },
+            "personId": {
+              "$ref": "#/$defs/id"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+            }
+          }
+        },
+        {
+          "$comment": "Remove a person and their paper assignments.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "personId"
+          ],
+          "properties": {
+            "op": {
+              "const": "person.remove"
+            },
+            "personId": {
+              "$ref": "#/$defs/id"
+            }
+          }
+        },
+        {
+          "$comment": "Add a personal folder at the end.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "folder"
+          ],
+          "properties": {
+            "op": {
+              "const": "folder.add"
+            },
+            "folder": {
+              "$ref": "#/$defs/folder"
+            }
+          }
+        },
+        {
+          "$comment": "Change listed fields only. Omitting parentId preserves the parent; null moves to Other Folders. The resulting tree must remain valid.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "folderId"
+          ],
+          "properties": {
+            "op": {
+              "const": "folder.update"
+            },
+            "folderId": {
+              "$ref": "#/$defs/id"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$",
+              "x-showpapers-maxUtf16CodeUnits": 80
+            },
+            "color": {
+              "enum": [
+                "blue",
+                "teal",
+                "green",
+                "amber",
+                "coral",
+                "purple",
+                "gray"
+              ]
+            },
+            "icon": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "enum": [
+                    "folder",
+                    "paper",
+                    "passport",
+                    "identity",
+                    "travel",
+                    "study",
+                    "work",
+                    "receipt",
+                    "shield",
+                    "people",
+                    "home",
+                    "checklist",
+                    "appointment"
+                  ]
+                }
+              ]
+            },
+            "purpose": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 240,
+              "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*$",
+              "x-showpapers-maxUtf16CodeUnits": 240
+            },
+            "rule": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "#/$defs/rule"
+                }
+              ]
+            },
+            "parentId": {
+              "$comment": "Optional folder parent: omitted or null means Other Folders; root means the library root; a canonical UUID names another personal folder in this collection; category IDs name built-in parents. Parent references must resolve without self-links or cycles. Sibling names are unique ignoring case; null and other-folders share one sibling namespace.",
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "enum": [
+                    "root",
+                    "identity",
+                    "visas",
+                    "notices",
+                    "applications",
+                    "residency",
+                    "work-authorization",
+                    "travel-entry",
+                    "study",
+                    "home",
+                    "finance",
+                    "health",
+                    "education",
+                    "work",
+                    "family",
+                    "legal",
+                    "other",
+                    "permits",
+                    "other-folders"
+                  ]
+                },
+                {
+                  "$ref": "#/$defs/id"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "$comment": "Remove a folder while retaining its papers. Children must be explicitly reparented or removed by earlier changes.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "folderId"
+          ],
+          "properties": {
+            "op": {
+              "const": "folder.remove"
+            },
+            "folderId": {
+              "$ref": "#/$defs/id"
+            }
+          }
+        },
+        {
+          "$comment": "Add papers to a folder.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "folderId",
+            "paperIds"
+          ],
+          "properties": {
+            "op": {
+              "const": "folder.addPapers"
+            },
+            "folderId": {
+              "$ref": "#/$defs/id"
+            },
+            "paperIds": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          }
+        },
+        {
+          "$comment": "Remove papers from a folder.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "folderId",
+            "paperIds"
+          ],
+          "properties": {
+            "op": {
+              "const": "folder.removePapers"
+            },
+            "folderId": {
+              "$ref": "#/$defs/id"
+            },
+            "paperIds": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          }
+        },
+        {
+          "$comment": "Add a note.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "noteId",
+            "title",
+            "record"
+          ],
+          "properties": {
+            "op": {
+              "const": "note.add"
+            },
+            "noteId": {
+              "$ref": "#/$defs/id"
+            },
+            "title": {
+              "$ref": "#/$defs/noteTitle"
+            },
+            "record": {
+              "type": "object",
+              "required": [
+                "recordVersion"
+              ],
+              "propertyNames": {
+                "type": "string",
+                "maxLength": 32
+              },
+              "maxProperties": 16,
+              "additionalProperties": {},
+              "$comment": "A complete urn:showpapers:scratch-record:1 object."
+            }
+          }
+        },
+        {
+          "$comment": "Replace a note's title and complete record.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "noteId",
+            "title",
+            "record"
+          ],
+          "properties": {
+            "op": {
+              "const": "note.replace"
+            },
+            "noteId": {
+              "$ref": "#/$defs/id"
+            },
+            "title": {
+              "$ref": "#/$defs/noteTitle"
+            },
+            "record": {
+              "type": "object",
+              "required": [
+                "recordVersion"
+              ],
+              "propertyNames": {
+                "type": "string",
+                "maxLength": 32
+              },
+              "maxProperties": 16,
+              "additionalProperties": {},
+              "$comment": "A complete urn:showpapers:scratch-record:1 object; carry forward every unchanged row and field."
+            }
+          }
+        },
+        {
+          "$comment": "Remove a note.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "noteId"
+          ],
+          "properties": {
+            "op": {
+              "const": "note.remove"
+            },
+            "noteId": {
+              "$ref": "#/$defs/id"
+            }
+          }
+        },
+        {
+          "$comment": "Suggest that two papers are related. It arrives as a suggested relationship with origin agent.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "type",
+            "paperIds",
+            "referringPaperId",
+            "reason"
+          ],
+          "properties": {
+            "op": {
+              "const": "relationship.add"
+            },
+            "type": {
+              "enum": [
+                "same-case",
+                "different-stage",
+                "same-person",
+                "same-record",
+                "same-organization",
+                "supporting-document",
+                "renewal",
+                "amendment",
+                "subsequent-filing",
+                "duplicate",
+                "alternate-version"
+              ]
+            },
+            "paperIds": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/id"
+              }
+            },
+            "referringPaperId": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "#/$defs/id"
+                }
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 500,
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*$"
+            }
+          }
+        },
+        {
+          "$comment": "Propose removing a relationship.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "relationshipId"
+          ],
+          "properties": {
+            "op": {
+              "const": "relationship.remove"
+            },
+            "relationshipId": {
+              "$ref": "#/$defs/id"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

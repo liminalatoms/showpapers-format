@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:conflict-resolution:1",
+  "title": "ShowPapers Explicit Conflict Resolution Request 1",
+  "description": "One explicit choice for every reported conflict, bound to the exact base, other snapshot, the caller's own work, scope and reviewed report. Caller-supplied; not authenticated authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "resolutionVersion",
+    "resolutionId",
+    "collectionId",
+    "formatVersion",
+    "baseRevision",
+    "baseArchiveSha256",
+    "theirsRevision",
+    "theirsArchiveSha256",
+    "mineKind",
+    "mineSha256",
+    "constraintsSha256",
+    "reportSha256",
+    "resolutions"
+  ],
+  "properties": {
+    "resolutionVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "resolutionId": {
+      "$ref": "#/$defs/id"
+    },
+    "collectionId": {
+      "$ref": "#/$defs/id"
+    },
+    "formatVersion": {
+      "type": "integer",
+      "enum": [
+        1,
+        2,
+        3
+      ]
+    },
+    "baseRevision": {
+      "$ref": "#/$defs/revision"
+    },
+    "theirsRevision": {
+      "$ref": "#/$defs/revision"
+    },
+    "baseArchiveSha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "theirsArchiveSha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "mineKind": {
+      "enum": [
+        "archive",
+        "request"
+      ]
+    },
+    "mineSha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "constraintsSha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "reportSha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "resolutions": {
+      "type": "array",
+      "maxItems": 301,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "conflictId",
+          "choice"
+        ],
+        "properties": {
+          "conflictId": {
+            "$ref": "#/$defs/sha256"
+          },
+          "choice": {
+            "enum": [
+              "keepMine",
+              "keepTheirs",
+              "keepBoth"
+            ]
+          },
+          "copyId": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "if": {
+          "properties": {
+            "choice": {
+              "const": "keepBoth"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "copyId"
+          ]
+        },
+        "else": {
+          "not": {
+            "required": [
+              "copyId"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740990
+    }
+  }
+}

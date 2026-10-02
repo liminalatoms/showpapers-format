@@ -1,0 +1,324 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:operations:1",
+  "title": "ShowPapers offline operations v1",
+  "$comment": "The tool additionally checks caller-supplied scope constraints, input revision, revision overflow, resolved references, payload bounds and full resulting snapshot validity. operationId is correlation only; there is no durable replay ledger.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "operationId",
+    "collectionId",
+    "expectedRevision",
+    "operations"
+  ],
+  "properties": {
+    "protocolVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "operationId": {
+      "$ref": "#/$defs/id"
+    },
+    "collectionId": {
+      "$ref": "#/$defs/id"
+    },
+    "expectedRevision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "operations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "id",
+              "paperIds",
+              "text",
+              "title"
+            ],
+            "properties": {
+              "type": {
+                "const": "note.add"
+              },
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "paperIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/id"
+                },
+                "maxItems": 100,
+                "uniqueItems": true
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 32768,
+                "pattern": "^[^\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*$",
+                "x-showpapers-maxUtf16CodeUnits": 32768,
+                "description": "Plain UTF-8 note text, limited to 32768 UTF-16 code units. maxLength counts Unicode codepoints; clients must additionally enforce x-showpapers-maxUtf16CodeUnits."
+              },
+              "title": {
+                "$ref": "#/$defs/title"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "id"
+            ],
+            "properties": {
+              "type": {
+                "const": "note.edit"
+              },
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "paperIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/id"
+                },
+                "maxItems": 100,
+                "uniqueItems": true
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 32768,
+                "pattern": "^[^\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*$",
+                "x-showpapers-maxUtf16CodeUnits": 32768,
+                "description": "Plain UTF-8 note text, limited to 32768 UTF-16 code units. maxLength counts Unicode codepoints; clients must additionally enforce x-showpapers-maxUtf16CodeUnits."
+              }
+            },
+            "anyOf": [
+              {
+                "required": [
+                  "paperIds"
+                ]
+              },
+              {
+                "required": [
+                  "text"
+                ]
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "id"
+            ],
+            "properties": {
+              "type": {
+                "const": "note.remove"
+              },
+              "id": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "id",
+              "recordType",
+              "title"
+            ],
+            "properties": {
+              "type": {
+                "const": "record.rename"
+              },
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "recordType": {
+                "enum": [
+                  "paper",
+                  "note"
+                ]
+              },
+              "title": {
+                "$ref": "#/$defs/title"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "id",
+              "name",
+              "noteIds",
+              "paperIds"
+            ],
+            "properties": {
+              "type": {
+                "const": "folder.add"
+              },
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100,
+                "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+              },
+              "noteIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/id"
+                },
+                "maxItems": 100,
+                "uniqueItems": true
+              },
+              "paperIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/id"
+                },
+                "maxItems": 100,
+                "uniqueItems": true
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "id",
+              "name"
+            ],
+            "properties": {
+              "type": {
+                "const": "folder.rename"
+              },
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100,
+                "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "id"
+            ],
+            "properties": {
+              "type": {
+                "const": "folder.remove"
+              },
+              "id": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "id",
+              "noteIds",
+              "paperIds"
+            ],
+            "properties": {
+              "type": {
+                "const": "folder.addMembers"
+              },
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "noteIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/id"
+                },
+                "maxItems": 100,
+                "uniqueItems": true
+              },
+              "paperIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/id"
+                },
+                "maxItems": 100,
+                "uniqueItems": true
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "id",
+              "noteIds",
+              "paperIds"
+            ],
+            "properties": {
+              "type": {
+                "const": "folder.removeMembers"
+              },
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "noteIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/id"
+                },
+                "maxItems": 100,
+                "uniqueItems": true
+              },
+              "paperIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/id"
+                },
+                "maxItems": 100,
+                "uniqueItems": true
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+    }
+  }
+}

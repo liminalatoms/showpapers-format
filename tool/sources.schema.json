@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:sources:1",
+  "title": "ShowPapers owner-selected local sources v1",
+  "$comment": "Supplied separately by the caller, never obtained from archive content or model operation paths. Relative sources are resolved within the selected manifest directory using held no-follow directory handles; regular file size, identity, SHA and media are checked. Aggregate declared size must not exceed 100 MiB. This schema does not grant access by itself.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sourcesVersion",
+    "collectionId",
+    "sources"
+  ],
+  "properties": {
+    "sourcesVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "collectionId": {
+      "$ref": "#/$defs/id"
+    },
+    "sources": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "path",
+          "size",
+          "sha256"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "pattern": "^(?!.*(?:^|/)\\.{1,2}(?:/|$))[^/\\\\:\\u0000-\\u001f\\u007f-\\u009f]+(?:/[^/\\\\:\\u0000-\\u001f\\u007f-\\u009f]+)*$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20971520
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    }
+  }
+}

@@ -1,0 +1,723 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:companion:2",
+  "title": "ShowPapers AI companion v2",
+  "$comment": "Companion for profile 4 archives: every companion v1 key plus details, people, folders, reminders, pins, relationships and reading text. Derived and informative; the archive is authoritative. Recognize it by schema == urn:showpapers:companion:2.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generator",
+    "about",
+    "collection",
+    "archive",
+    "pdf",
+    "papers",
+    "notes",
+    "folders",
+    "people",
+    "relationships",
+    "notIncluded",
+    "handBack"
+  ],
+  "properties": {
+    "schema": {
+      "const": "urn:showpapers:companion:2"
+    },
+    "generator": {
+      "$ref": "#/$defs/generator"
+    },
+    "about": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "collection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "revision",
+        "formatVersion"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "formatVersion": {
+          "const": 4,
+          "type": "integer"
+        }
+      }
+    },
+    "archive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "mediaType",
+        "size",
+        "sha256"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "mediaType": {
+          "const": "application/vnd.showpapers.collection"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 22,
+          "maximum": 108003328
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "pdf": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "pageCount"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "pageCount": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        }
+      ]
+    },
+    "papers": {
+      "type": "array",
+      "items": {
+        "$comment": "Companion v1 paper keys plus the profile 4 view: details show the effective value (a person's correction wins) with its origin and whether the person confirmed it; readingText is the on-device reading's page text joined by form feeds.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "type",
+          "customType",
+          "mediaType",
+          "size",
+          "sha256",
+          "expires",
+          "pdfPages",
+          "details",
+          "personIds",
+          "folderIds",
+          "builtInFolder",
+          "pinned",
+          "reminder",
+          "readingText"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "enum": [
+                  "i20",
+                  "i94",
+                  "passport",
+                  "visa",
+                  "i797",
+                  "employment-authorization",
+                  "drivers-license",
+                  "social-security",
+                  "birth-certificate",
+                  "marriage-certificate",
+                  "tax",
+                  "insurance"
+                ]
+              }
+            ]
+          },
+          "customType": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              }
+            ]
+          },
+          "mediaType": {
+            "enum": [
+              "application/pdf",
+              "image/png",
+              "image/jpeg",
+              "image/webp"
+            ]
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20971520
+          },
+          "sha256": {
+            "$ref": "#/$defs/sha256"
+          },
+          "expires": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/$defs/isoDate"
+              }
+            ]
+          },
+          "pdfPages": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "first",
+                  "last"
+                ],
+                "properties": {
+                  "first": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "last": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  }
+                }
+              }
+            ]
+          },
+          "details": {
+            "type": "array",
+            "maxItems": 562,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "key",
+                "label",
+                "value",
+                "valueType",
+                "origin",
+                "confirmed"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 96
+                },
+                "key": {
+                  "$ref": "#/$defs/fieldKey"
+                },
+                "label": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 0,
+                      "maxLength": 80
+                    }
+                  ]
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 4096
+                },
+                "valueType": {
+                  "$ref": "#/$defs/valueType"
+                },
+                "origin": {
+                  "enum": [
+                    "reading",
+                    "person",
+                    "agent"
+                  ]
+                },
+                "confirmed": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "personIds": {
+            "type": "array",
+            "maxItems": 64,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/id"
+            }
+          },
+          "folderIds": {
+            "type": "array",
+            "maxItems": 64,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/id"
+            }
+          },
+          "builtInFolder": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "enum": [
+                  "identity",
+                  "visas",
+                  "notices",
+                  "applications",
+                  "residency",
+                  "work-authorization",
+                  "travel-entry",
+                  "study",
+                  "home",
+                  "finance",
+                  "health",
+                  "education",
+                  "work",
+                  "family",
+                  "legal",
+                  "other"
+                ]
+              }
+            ]
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "reminder": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "date",
+                  "leadDays",
+                  "enabled"
+                ],
+                "properties": {
+                  "date": {
+                    "$ref": "#/$defs/isoDate"
+                  },
+                  "leadDays": {
+                    "type": "integer",
+                    "enum": [
+                      7,
+                      14,
+                      30
+                    ]
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            ]
+          },
+          "readingText": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 52428800
+              }
+            ]
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "text",
+          "paperIds"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "text": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 1048576
+          },
+          "paperIds": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/id"
+            }
+          }
+        }
+      }
+    },
+    "folders": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "purpose",
+          "paperIds"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 240
+          },
+          "paperIds": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/id"
+            }
+          },
+          "parentId": {
+            "$comment": "Optional folder parent: omitted or null means Other Folders; root means the library root; a canonical UUID names another personal folder in this collection; category IDs name built-in parents. Parent references must resolve without self-links or cycles. Sibling names are unique ignoring case; null and other-folders share one sibling namespace.",
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "enum": [
+                  "root",
+                  "identity",
+                  "visas",
+                  "notices",
+                  "applications",
+                  "residency",
+                  "work-authorization",
+                  "travel-entry",
+                  "study",
+                  "home",
+                  "finance",
+                  "health",
+                  "education",
+                  "work",
+                  "family",
+                  "legal",
+                  "other",
+                  "permits",
+                  "other-folders"
+                ]
+              },
+              {
+                "$ref": "#/$defs/id"
+              }
+            ]
+          }
+        },
+        "$comment": "A personal folder. Array order is retained among siblings. Folders hold papers only. Sibling names are unique ignoring case and limited in UTF-16 units. Optional folder parent: omitted or null means Other Folders; root means the library root; a canonical UUID names another personal folder in this collection; category IDs name built-in parents. Parent references must resolve without self-links or cycles. Sibling names are unique ignoring case; null and other-folders share one sibling namespace."
+      }
+    },
+    "people": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "isMe"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "isMe": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "maxItems": 5000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "paperIds",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "type": {
+            "enum": [
+              "same-case",
+              "different-stage",
+              "same-person",
+              "same-record",
+              "same-organization",
+              "supporting-document",
+              "renewal",
+              "amendment",
+              "subsequent-filing",
+              "duplicate",
+              "alternate-version"
+            ]
+          },
+          "paperIds": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/id"
+            }
+          },
+          "status": {
+            "enum": [
+              "suggested",
+              "confirmed",
+              "rejected"
+            ]
+          }
+        }
+      }
+    },
+    "notIncluded": {
+      "type": "array",
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64
+      }
+    },
+    "handBack": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "isoDate": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 10,
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
+    },
+    "generator": {
+      "$comment": "The program that wrote this file, not a signature. Apps write {\"name\":\"ShowPapers\",\"platform\":\"android\"|\"ios\",\"version\":<app version>}.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "platform",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+        },
+        "platform": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+        }
+      }
+    },
+    "fieldKey": {
+      "enum": [
+        "program-start-date",
+        "program-end-date",
+        "sevis-id",
+        "admission-date",
+        "admit-until",
+        "class-of-admission",
+        "admission-record-number",
+        "given-name",
+        "family-name",
+        "date-of-birth",
+        "country-of-birth",
+        "country-of-citizenship",
+        "nationality",
+        "document-number",
+        "passport-number",
+        "issuing-country",
+        "issue-date",
+        "expiration-date",
+        "place-of-birth",
+        "sex",
+        "full-name",
+        "receipt-number",
+        "case-type",
+        "notice-type",
+        "notice-date",
+        "received-date",
+        "priority-date",
+        "petitioner",
+        "beneficiary",
+        "classification",
+        "valid-from",
+        "valid-until",
+        "visa-class",
+        "visa-entries",
+        "visa-control-number",
+        "issuing-post",
+        "uscis-number",
+        "card-number",
+        "authorization-category",
+        "license-number",
+        "license-class",
+        "license-restrictions",
+        "license-endorsements",
+        "social-security-number",
+        "certificate-number",
+        "registration-number",
+        "registration-date",
+        "mother-name",
+        "father-name",
+        "child-name",
+        "marriage-date",
+        "marriage-place",
+        "spouse-one",
+        "spouse-two",
+        "policy-number",
+        "member-id",
+        "group-number",
+        "insured-name",
+        "insurer",
+        "coverage-start-date",
+        "coverage-end-date",
+        "tax-form",
+        "tax-year",
+        "employer-name",
+        "employer-identification-number",
+        "taxpayer-name",
+        "school-name",
+        "school-code",
+        "education-level",
+        "major",
+        "second-major",
+        "estimated-total-cost",
+        "student-personal-funds",
+        "school-funds",
+        "other-funds",
+        "on-campus-employment-funds",
+        "funding-period",
+        "other"
+      ]
+    },
+    "valueType": {
+      "enum": [
+        "text",
+        "date",
+        "duration-of-status"
+      ]
+    }
+  }
+}

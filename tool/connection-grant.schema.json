@@ -1,0 +1,433 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:connection-grant:1",
+  "title": "ShowPapers Host-Created Connection Grant v1",
+  "$comment": "One grant authorizes ONE local session. A trusted host writes it; an AI request can never supply, replace or broaden it. It is not a signature, authentication or a phone connection. The validator additionally requires: IDs unique across collectionId, records and newRecords; at most 132 IDs per record type across both lists; 0 < expiresAt - issuedAt <= 86400.",
+  "type": "object",
+  "required": [
+    "grantVersion",
+    "grantId",
+    "collectionId",
+    "client",
+    "sharing",
+    "permissions",
+    "read",
+    "records",
+    "newRecords",
+    "issuedAt",
+    "expiresAt",
+    "maxIdleSeconds"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "grantVersion": {
+      "const": 1
+    },
+    "grantId": {
+      "$ref": "#/$defs/id",
+      "description": "Identifies this one session. A grant ID starts at most one session."
+    },
+    "collectionId": {
+      "$ref": "#/$defs/id"
+    },
+    "client": {
+      "type": "object",
+      "required": [
+        "label"
+      ],
+      "additionalProperties": false,
+      "description": "Host-declared name of the connected client. It is displayed, never verified.",
+      "properties": {
+        "label": {
+          "$ref": "#/$defs/label"
+        }
+      }
+    },
+    "sharing": {
+      "type": "object",
+      "required": [
+        "destination",
+        "acknowledgedDestination",
+        "serviceLabel"
+      ],
+      "additionalProperties": false,
+      "description": "Where tool responses go. The person acknowledges the exact destination class; the adapter cannot verify it.",
+      "properties": {
+        "destination": {
+          "enum": [
+            "local-only",
+            "cloud-ai"
+          ]
+        },
+        "acknowledgedDestination": {
+          "enum": [
+            "local-only",
+            "cloud-ai"
+          ]
+        },
+        "serviceLabel": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/label"
+            }
+          ]
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "destination": {
+              "const": "local-only"
+            },
+            "acknowledgedDestination": {
+              "const": "local-only"
+            },
+            "serviceLabel": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "destination": {
+              "const": "cloud-ai"
+            },
+            "acknowledgedDestination": {
+              "const": "cloud-ai"
+            },
+            "serviceLabel": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "permissions": {
+      "type": "object",
+      "description": "Six separate action permissions. None implies another.",
+      "required": [
+        "read",
+        "add",
+        "edit",
+        "organize",
+        "delete",
+        "export"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "read": {
+          "type": "boolean"
+        },
+        "add": {
+          "type": "boolean"
+        },
+        "edit": {
+          "type": "boolean"
+        },
+        "organize": {
+          "type": "boolean"
+        },
+        "delete": {
+          "type": "boolean"
+        },
+        "export": {
+          "type": "boolean"
+        }
+      },
+      "anyOf": [
+        {
+          "properties": {
+            "read": {
+              "const": true
+            }
+          },
+          "required": [
+            "read"
+          ]
+        },
+        {
+          "properties": {
+            "add": {
+              "const": true
+            }
+          },
+          "required": [
+            "add"
+          ]
+        },
+        {
+          "properties": {
+            "edit": {
+              "const": true
+            }
+          },
+          "required": [
+            "edit"
+          ]
+        },
+        {
+          "properties": {
+            "organize": {
+              "const": true
+            }
+          },
+          "required": [
+            "organize"
+          ]
+        },
+        {
+          "properties": {
+            "delete": {
+              "const": true
+            }
+          },
+          "required": [
+            "delete"
+          ]
+        },
+        {
+          "properties": {
+            "export": {
+              "const": true
+            }
+          },
+          "required": [
+            "export"
+          ]
+        }
+      ]
+    },
+    "read": {
+      "type": "object",
+      "description": "Content classes that may be read. Originals means size, digest and media type; original bytes are never returned.",
+      "required": [
+        "titles",
+        "text",
+        "originals",
+        "links"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "titles": {
+          "type": "boolean"
+        },
+        "text": {
+          "type": "boolean"
+        },
+        "originals": {
+          "type": "boolean"
+        },
+        "links": {
+          "type": "boolean"
+        }
+      }
+    },
+    "records": {
+      "type": "object",
+      "required": [
+        "paperIds",
+        "noteIds",
+        "folderIds"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "paperIds": {
+          "type": "array",
+          "maxItems": 132,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "noteIds": {
+          "type": "array",
+          "maxItems": 132,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "folderIds": {
+          "type": "array",
+          "maxItems": 132,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        }
+      },
+      "description": "Selected existing records. Everything else in the collection stays undisclosed."
+    },
+    "newRecords": {
+      "type": "object",
+      "required": [
+        "paperIds",
+        "noteIds",
+        "folderIds",
+        "sourceIds"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "paperIds": {
+          "type": "array",
+          "maxItems": 132,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "noteIds": {
+          "type": "array",
+          "maxItems": 132,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "folderIds": {
+          "type": "array",
+          "maxItems": 132,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "sourceIds": {
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        }
+      },
+      "description": "Unused IDs and owner-selected source IDs the session may use to add records."
+    },
+    "issuedAt": {
+      "$ref": "#/$defs/epochSeconds"
+    },
+    "expiresAt": {
+      "$ref": "#/$defs/epochSeconds"
+    },
+    "maxIdleSeconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3600
+    }
+  },
+  "allOf": [
+    {
+      "$comment": "Content classes need the read permission.",
+      "if": {
+        "properties": {
+          "permissions": {
+            "properties": {
+              "read": {
+                "const": false
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "read": {
+            "properties": {
+              "titles": {
+                "const": false
+              },
+              "text": {
+                "const": false
+              },
+              "originals": {
+                "const": false
+              },
+              "links": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "$comment": "Native Note payloads carry Paper links, so text needs links.",
+      "if": {
+        "properties": {
+          "read": {
+            "properties": {
+              "text": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "read": {
+            "properties": {
+              "links": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "$comment": "New record and source IDs need the add permission.",
+      "if": {
+        "properties": {
+          "permissions": {
+            "properties": {
+              "add": {
+                "const": false
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "newRecords": {
+            "properties": {
+              "paperIds": {
+                "maxItems": 0
+              },
+              "noteIds": {
+                "maxItems": 0
+              },
+              "folderIds": {
+                "maxItems": 0
+              },
+              "sourceIds": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\s](?:[^\\u0000-\\u001f\\u007f-\\u009f]*[^\\u0000-\\u001f\\u007f-\\u009f\\s])?$"
+    },
+    "epochSeconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 253402300799
+    }
+  }
+}

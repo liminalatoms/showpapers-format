@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:scratch-document:1",
+  "title": "ShowPapers modern Scratch content v1",
+  "$comment": "Runtime additionally enforces UTF-16 length and scalar boundaries, start < end <= text length, nonoverlapping link ranges, in-archive Paper resolution, exact manifest Paper references, byte limits and no unknown fields. Bold/italic marks may overlap and are preserved in order. This content profile does not encode legacy checklist items or internal vault metadata.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "noteVersion",
+    "text",
+    "marks",
+    "paperIds",
+    "paperLinks"
+  ],
+  "properties": {
+    "noteVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "text": {
+      "type": "string",
+      "maxLength": 32768,
+      "pattern": "^[^\\u0000-\\u0008\\u000b-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*$",
+      "x-showpapers-maxUtf16CodeUnits": 32768,
+      "description": "Exact modern Note text. LF and tab are allowed; carriage returns and other control characters are rejected. Native checklist lines start exactly with U+2610 plus U+0020 (☐ ) or U+2611 plus U+0020 (☑ ), with no indentation, at the beginning of text or just after LF. Native editors draw their rounded check control over these markers. Markdown - [ ] and other squares remain literal text. Bullets use • plus U+0020. Calculate marks and paperLinks as UTF-16 offsets into the final text."
+    },
+    "marks": {
+      "type": "array",
+      "maxItems": 2048,
+      "items": {
+        "$ref": "#/$defs/mark"
+      }
+    },
+    "paperIds": {
+      "type": "array",
+      "maxItems": 640,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "paperLinks": {
+      "type": "array",
+      "maxItems": 640,
+      "items": {
+        "$ref": "#/$defs/paperLink"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "mark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start",
+        "end",
+        "style"
+      ],
+      "properties": {
+        "start": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 32768
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32768
+        },
+        "style": {
+          "type": "integer",
+          "enum": [
+            1,
+            2
+          ]
+        }
+      }
+    },
+    "paperLink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start",
+        "end",
+        "paperId"
+      ],
+      "properties": {
+        "start": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 32768
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32768
+        },
+        "paperId": {
+          "$ref": "#/$defs/id"
+        }
+      }
+    }
+  }
+}

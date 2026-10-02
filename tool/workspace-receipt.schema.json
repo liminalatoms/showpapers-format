@@ -1,0 +1,311 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:workspace-receipt:1",
+  "title": "Local ShowPapers Workspace Metadata Version 1",
+  "description": "Metadata only. Runtime additionally validates contiguous chains, exact identities, hashes, field permissions and snapshot bytes. No signatures or remote authority.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/reservation"
+    },
+    {
+      "$ref": "#/$defs/initial"
+    },
+    {
+      "$ref": "#/$defs/proposal"
+    },
+    {
+      "$ref": "#/$defs/intent"
+    },
+    {
+      "$ref": "#/$defs/receipt"
+    }
+  ],
+  "$defs": {
+    "fingerprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "size",
+        "identity"
+      ],
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 108003328
+        },
+        "identity": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "collectionId",
+        "revision",
+        "formatVersion",
+        "snapshot",
+        "sha256",
+        "size"
+      ],
+      "properties": {
+        "collectionId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "formatVersion": {
+          "enum": [
+            1,
+            2,
+            3
+          ]
+        },
+        "snapshot": {
+          "type": "string",
+          "pattern": "^v[0-9]{4}\\.showpapers$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 22,
+          "maximum": 108003328
+        }
+      }
+    },
+    "reservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workspaceVersion",
+        "workspaceId",
+        "source",
+        "grant",
+        "fieldPolicy"
+      ],
+      "properties": {
+        "workspaceVersion": {
+          "const": 1
+        },
+        "workspaceId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "source": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "grant": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "fieldPolicy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/fingerprint"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "initial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workspaceId",
+        "current"
+      ],
+      "properties": {
+        "workspaceId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "current": {
+          "$ref": "#/$defs/snapshot"
+        }
+      }
+    },
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workspaceId",
+        "operationId",
+        "before",
+        "inputs",
+        "planSha256"
+      ],
+      "properties": {
+        "workspaceId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "operationId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "before": {
+          "$ref": "#/$defs/snapshot"
+        },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request",
+            "grant",
+            "sources",
+            "fieldPolicy",
+            "sourceRoot",
+            "addedSources"
+          ],
+          "properties": {
+            "request": {
+              "$ref": "#/$defs/fingerprint"
+            },
+            "grant": {
+              "$ref": "#/$defs/fingerprint"
+            },
+            "sources": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/fingerprint"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "fieldPolicy": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/fingerprint"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sourceRoot": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              ]
+            },
+            "addedSources": {
+              "type": "object",
+              "maxProperties": 32,
+              "propertyNames": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "additionalProperties": {
+                "$ref": "#/$defs/fingerprint"
+              }
+            }
+          }
+        },
+        "planSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "resolution": {
+          "description": "Present only for an explicit conflict resolution: the head is the other side and the request is replanned against this older committed base.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "file",
+            "base",
+            "requestOperationId"
+          ],
+          "properties": {
+            "file": {
+              "$ref": "#/$defs/fingerprint"
+            },
+            "base": {
+              "$ref": "#/$defs/snapshot"
+            },
+            "requestOperationId": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        }
+      }
+    },
+    "intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workspaceId",
+        "index",
+        "before",
+        "proposal"
+      ],
+      "properties": {
+        "workspaceId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "before": {
+          "$ref": "#/$defs/snapshot"
+        },
+        "proposal": {
+          "$ref": "#/$defs/proposal"
+        }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "intentSha256",
+        "after"
+      ],
+      "properties": {
+        "intentSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "after": {
+          "$ref": "#/$defs/snapshot"
+        }
+      }
+    }
+  }
+}

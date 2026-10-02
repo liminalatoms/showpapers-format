@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:reading:1",
+  "title": "ShowPapers reading v1",
+  "$comment": "readings/<id>.json: the app's on-device reading of one original (OCR pages, blocks, lines, optional words, normalized regions and confidences) and the reader's result JSON. Text limits are UTF-8 bytes: page 262144, block 65536, line 8192, word 2048. Page indexes are unique. Together with the paper record it must fit the apps' analysis store (50,000 nodes, 2 MiB). sdkAnalysis is ShowPapers-internal: copy it unchanged or set it to null; never edit it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "readingVersion",
+    "extractorVersion",
+    "concerns",
+    "pages",
+    "sdkAnalysis"
+  ],
+  "properties": {
+    "readingVersion": {
+      "const": 1,
+      "type": "integer"
+    },
+    "extractorVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100000
+    },
+    "concerns": {
+      "type": "array",
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "no-text",
+          "unrecognized-document",
+          "conflicting-document-types",
+          "no-supported-fields",
+          "field-limit-reached"
+        ]
+      }
+    },
+    "pages": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "$ref": "#/$defs/page"
+      }
+    },
+    "sdkAnalysis": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "sdkVersion"
+          ],
+          "propertyNames": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "maxProperties": 64,
+          "additionalProperties": {},
+          "$comment": "Opaque reader result (at most 524288 bytes as canonical JSON). Keys are the reader's own."
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "unit": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "region": {
+      "$comment": "Normalized to the rendered page (0..1). box is [left, top, right, bottom] with left <= right and top <= bottom.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "box",
+        "polygon"
+      ],
+      "properties": {
+        "box": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": {
+                "$ref": "#/$defs/unit"
+              }
+            }
+          ]
+        },
+        "polygon": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "$ref": "#/$defs/unit"
+            }
+          }
+        }
+      }
+    },
+    "word": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text",
+        "region",
+        "confidence"
+      ],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 2048
+        },
+        "region": {
+          "$ref": "#/$defs/region"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/unit"
+            }
+          ]
+        }
+      }
+    },
+    "line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text",
+        "region",
+        "confidence",
+        "words"
+      ],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 8192
+        },
+        "region": {
+          "$ref": "#/$defs/region"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/unit"
+            }
+          ]
+        },
+        "words": {
+          "type": "array",
+          "maxItems": 2048,
+          "items": {
+            "$ref": "#/$defs/word"
+          }
+        }
+      }
+    },
+    "block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text",
+        "region",
+        "lines"
+      ],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 65536
+        },
+        "region": {
+          "$ref": "#/$defs/region"
+        },
+        "lines": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": {
+            "$ref": "#/$defs/line"
+          }
+        }
+      }
+    },
+    "page": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "index",
+        "width",
+        "height",
+        "engine",
+        "text",
+        "blocks"
+      ],
+      "properties": {
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 199
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20000
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20000
+        },
+        "engine": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[\\x20-\\x7e]+$"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 262144
+        },
+        "blocks": {
+          "type": "array",
+          "maxItems": 2000,
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      }
+    }
+  }
+}

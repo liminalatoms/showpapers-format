@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:scope-constraints:2",
+  "title": "ShowPapers caller-supplied scope constraints v2",
+  "$comment": "This local file constrains the offline command. It is not signed or authenticated permission; anyone who can write it can choose its contents. A trusted future host must issue and enforce real grants outside archive data. Source IDs are opaque caller-supplied admission tokens, a separate namespace from record IDs. Every listed source-manifest entry must be granted; no wildcard actions or records.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "scopeVersion",
+    "collectionId",
+    "actions",
+    "paperIds",
+    "noteIds",
+    "folderIds",
+    "sourceIds"
+  ],
+  "properties": {
+    "scopeVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "collectionId": {
+      "$ref": "#/$defs/id"
+    },
+    "actions": {
+      "type": "array",
+      "maxItems": 14,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "collection.rename",
+          "folder.add",
+          "folder.addMembers",
+          "folder.remove",
+          "folder.removeMembers",
+          "folder.rename",
+          "folder.reorderMembers",
+          "note.add",
+          "note.edit",
+          "note.remove",
+          "paper.add",
+          "paper.remove",
+          "record.rename",
+          "records.reorder"
+        ]
+      }
+    },
+    "paperIds": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "maxItems": 132,
+      "uniqueItems": true
+    },
+    "noteIds": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "maxItems": 132,
+      "uniqueItems": true
+    },
+    "folderIds": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "maxItems": 132,
+      "uniqueItems": true
+    },
+    "sourceIds": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    }
+  }
+}

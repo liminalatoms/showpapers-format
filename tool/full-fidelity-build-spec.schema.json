@@ -1,0 +1,844 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:format:build-spec:4",
+  "title": "ShowPapers full-fidelity build specification v4",
+  "$comment": "Local tooling input for `create`; never stored inside an archive. The writer computes media types, paths, sizes, digests and the manifest, sets its own generator, and derives relationship ids. Paper, reading and note payloads are given inline as record or as a JSON source file (kept byte for byte).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "formatVersion",
+    "collection",
+    "originals"
+  ],
+  "properties": {
+    "formatVersion": {
+      "const": 4,
+      "type": "integer"
+    },
+    "collection": {
+      "$ref": "#/$defs/collection"
+    },
+    "agents": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "$ref": "#/$defs/agent"
+      }
+    },
+    "originals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/originalSource"
+      }
+    },
+    "papers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/paperSource"
+      }
+    },
+    "readings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/readingSource"
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/noteSource"
+      }
+    },
+    "folders": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/folder"
+      }
+    },
+    "people": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/person"
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "maxItems": 5000,
+      "items": {
+        "$ref": "#/$defs/relationship"
+      }
+    },
+    "library": {
+      "$ref": "#/$defs/library"
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "collectionTitle": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+    },
+    "paperTitle": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff/\\\\]+$",
+      "$comment": "Unicode scalars. The apps' native title rule: trimmed, no control characters, no '/' or '\\\\'."
+    },
+    "noteTitle": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*[^\\s\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff][^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*$",
+      "$comment": "Profile 3 rule: edge whitespace kept, at least one non-whitespace scalar."
+    },
+    "collection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "revision",
+        "title"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "title": {
+          "$ref": "#/$defs/collectionTitle"
+        },
+        "parent": {
+          "$comment": "The exact archive this revision was edited from. Optional; parent.revision is lower than revision.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "revision",
+            "archiveSha256"
+          ],
+          "properties": {
+            "revision": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740990
+            },
+            "archiveSha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        }
+      }
+    },
+    "agent": {
+      "$comment": "An external AI agent that proposed values in this file. Agent-origin values reference it by id and stay pending until the person reviews them.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "platform",
+        "version"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+        },
+        "platform": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 40,
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 40,
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*$"
+        }
+      }
+    },
+    "rule": {
+      "$comment": "Automatic filing. autoAdd needs at least one document type. Clause fields are distinct; only the six date fields accept operators other than equals, and their values are ISO dates.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "documentTypes",
+        "autoAdd",
+        "excludedPaperIds",
+        "condition"
+      ],
+      "properties": {
+        "documentTypes": {
+          "type": "array",
+          "maxItems": 11,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "evidence.identity.foreign-passport",
+              "state.issued.us-passport",
+              "state.issued.visa-foil",
+              "cbp.record.i-94",
+              "ice.sevp.issued.i-20",
+              "uscis.issued.i-551",
+              "uscis.issued.i-766",
+              "uscis.notice.i-797",
+              "uscis.notice.i-797a",
+              "uscis.notice.i-797b",
+              "uscis.notice.i-797c"
+            ]
+          }
+        },
+        "autoAdd": {
+          "type": "boolean"
+        },
+        "excludedPaperIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "caseReceipt"
+                  ],
+                  "properties": {
+                    "caseReceipt": {
+                      "type": "string",
+                      "minLength": 13,
+                      "maxLength": 13,
+                      "pattern": "^(EAC|WAC|LIN|SRC|MSC|NBC|IOE|YSC)[0-9]{10}$"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "reviewedDetails"
+                  ],
+                  "properties": {
+                    "reviewedDetails": {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "field",
+                          "operator",
+                          "value"
+                        ],
+                        "properties": {
+                          "field": {
+                            "enum": [
+                              "issuing-country",
+                              "nationality",
+                              "citizenship",
+                              "employer",
+                              "school",
+                              "petitioner",
+                              "beneficiary",
+                              "visa-class",
+                              "admission-class",
+                              "authorization-category",
+                              "expiration-date",
+                              "valid-until",
+                              "program-end-date",
+                              "admit-until",
+                              "received-date",
+                              "notice-date"
+                            ]
+                          },
+                          "operator": {
+                            "enum": [
+                              "equals",
+                              "before",
+                              "on-or-before",
+                              "after",
+                              "on-or-after"
+                            ]
+                          },
+                          "value": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 160,
+                            "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "folder": {
+      "$comment": "A personal folder. Array order is retained among siblings. Folders hold papers only. Sibling names are unique ignoring case and limited in UTF-16 units. Optional folder parent: omitted or null means Other Folders; root means the library root; a canonical UUID names another personal folder in this collection; category IDs name built-in parents. Parent references must resolve without self-links or cycles. Sibling names are unique ignoring case; null and other-folders share one sibling namespace.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "color",
+        "icon",
+        "purpose",
+        "rule",
+        "paperIds"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$",
+          "x-showpapers-maxUtf16CodeUnits": 80
+        },
+        "color": {
+          "enum": [
+            "blue",
+            "teal",
+            "green",
+            "amber",
+            "coral",
+            "purple",
+            "gray"
+          ]
+        },
+        "icon": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "enum": [
+                "folder",
+                "paper",
+                "passport",
+                "identity",
+                "travel",
+                "study",
+                "work",
+                "receipt",
+                "shield",
+                "people",
+                "home",
+                "checklist",
+                "appointment"
+              ]
+            }
+          ]
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 240,
+          "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*$",
+          "x-showpapers-maxUtf16CodeUnits": 240
+        },
+        "rule": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/rule"
+            }
+          ]
+        },
+        "paperIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "parentId": {
+          "$comment": "Optional folder parent: omitted or null means Other Folders; root means the library root; a canonical UUID names another personal folder in this collection; category IDs name built-in parents. Parent references must resolve without self-links or cycles. Sibling names are unique ignoring case; null and other-folders share one sibling namespace.",
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "enum": [
+                "root",
+                "identity",
+                "visas",
+                "notices",
+                "applications",
+                "residency",
+                "work-authorization",
+                "travel-entry",
+                "study",
+                "home",
+                "finance",
+                "health",
+                "education",
+                "work",
+                "family",
+                "legal",
+                "other",
+                "permits",
+                "other-folders"
+              ]
+            },
+            {
+              "$ref": "#/$defs/id"
+            }
+          ]
+        }
+      }
+    },
+    "person": {
+      "$comment": "Names are unique ignoring case; at most one person is the owner (isMe).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "isMe"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+        },
+        "isMe": {
+          "type": "boolean"
+        }
+      }
+    },
+    "relationship": {
+      "$comment": "As in the manifest; id may be omitted and the writer derives it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "paperIds",
+        "referringPaperId",
+        "status",
+        "origin",
+        "agentId",
+        "reasons",
+        "decision"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "enum": [
+            "same-case",
+            "different-stage",
+            "same-person",
+            "same-record",
+            "same-organization",
+            "supporting-document",
+            "renewal",
+            "amendment",
+            "subsequent-filing",
+            "duplicate",
+            "alternate-version"
+          ]
+        },
+        "paperIds": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "referringPaperId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/id"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "suggested",
+            "confirmed",
+            "rejected"
+          ]
+        },
+        "origin": {
+          "enum": [
+            "reading",
+            "person",
+            "agent"
+          ]
+        },
+        "agentId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/id"
+            }
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*$"
+          }
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "action",
+                "reason"
+              ],
+              "properties": {
+                "action": {
+                  "enum": [
+                    "accept",
+                    "reject"
+                  ]
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 500,
+                  "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]*$"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "categoryIcon": {
+      "$comment": "Icon chosen for a category group. label is the custom type for purpose custom, otherwise null.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "purpose",
+        "label",
+        "icon"
+      ],
+      "properties": {
+        "purpose": {
+          "enum": [
+            "identity",
+            "admission",
+            "approvals-and-receipts",
+            "study",
+            "work-permission",
+            "personal-records",
+            "tax",
+            "insurance",
+            "custom",
+            "unknown"
+          ]
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/label"
+            }
+          ]
+        },
+        "icon": {
+          "enum": [
+            "folder",
+            "paper",
+            "passport",
+            "identity",
+            "travel",
+            "study",
+            "work",
+            "receipt",
+            "shield",
+            "people",
+            "home",
+            "checklist",
+            "appointment"
+          ]
+        }
+      }
+    },
+    "library": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pinnedPaperIds",
+        "categoryIcons"
+      ],
+      "properties": {
+        "pinnedPaperIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "categoryIcons": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/categoryIcon"
+          }
+        }
+      }
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "pattern": "^(?![ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000])(?![\\s\\S]*[ \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]$)[^\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]+$"
+    },
+    "icon": {
+      "enum": [
+        "folder",
+        "paper",
+        "passport",
+        "identity",
+        "travel",
+        "study",
+        "work",
+        "receipt",
+        "shield",
+        "people",
+        "home",
+        "checklist",
+        "appointment"
+      ]
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "^(?!/)(?![\\s\\S]*(^|/)\\.\\.?(/|$))[^\\\\:]+$"
+    },
+    "originalSource": {
+      "$comment": "source: a regular file below the build-spec directory; its bytes become the original.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "source"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "$ref": "#/$defs/paperTitle"
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        }
+      }
+    },
+    "paperSource": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "record"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/id"
+            },
+            "record": {
+              "$comment": "A complete urn:showpapers:paper-record:1 object, validated by paper-record.schema.json.",
+              "type": "object",
+              "required": [
+                "paperVersion"
+              ],
+              "propertyNames": {
+                "type": "string",
+                "maxLength": 32
+              },
+              "maxProperties": 16,
+              "additionalProperties": {}
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "source"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/id"
+            },
+            "source": {
+              "$ref": "#/$defs/source"
+            }
+          }
+        }
+      ]
+    },
+    "readingSource": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "record"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/id"
+            },
+            "record": {
+              "$comment": "A complete urn:showpapers:reading:1 object, validated by reading.schema.json.",
+              "type": "object",
+              "required": [
+                "readingVersion"
+              ],
+              "propertyNames": {
+                "type": "string",
+                "maxLength": 32
+              },
+              "maxProperties": 8,
+              "additionalProperties": {}
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "source"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/id"
+            },
+            "source": {
+              "$ref": "#/$defs/source"
+            }
+          }
+        }
+      ]
+    },
+    "noteSource": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "title",
+            "record"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/id"
+            },
+            "title": {
+              "$ref": "#/$defs/noteTitle"
+            },
+            "record": {
+              "$comment": "A complete urn:showpapers:scratch-record:1 object, validated by note-record.schema.json.",
+              "type": "object",
+              "required": [
+                "recordVersion"
+              ],
+              "propertyNames": {
+                "type": "string",
+                "maxLength": 32
+              },
+              "maxProperties": 16,
+              "additionalProperties": {}
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "title",
+            "source"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/id"
+            },
+            "title": {
+              "$ref": "#/$defs/noteTitle"
+            },
+            "source": {
+              "$ref": "#/$defs/source"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

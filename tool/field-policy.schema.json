@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:showpapers:field-policy:1",
+  "title": "ShowPapers Host-Selected Field Policy v1",
+  "type": "object",
+  "required": [
+    "policyVersion",
+    "collectionId",
+    "actions",
+    "collection",
+    "papers",
+    "notes",
+    "folders"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "policyVersion": {
+      "const": 1
+    },
+    "collectionId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+    },
+    "actions": {
+      "type": "array",
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "read",
+          "search",
+          "note.add",
+          "note.edit",
+          "note.remove",
+          "record.rename",
+          "folder.add",
+          "folder.rename",
+          "folder.remove",
+          "folder.addMembers",
+          "folder.removeMembers",
+          "paper.add",
+          "paper.remove",
+          "records.reorder",
+          "folder.reorderMembers",
+          "collection.rename"
+        ]
+      }
+    },
+    "collection": {
+      "type": "object",
+      "required": [
+        "read",
+        "write"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "read": {
+          "type": "array",
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "title",
+              "order"
+            ]
+          }
+        },
+        "write": {
+          "type": "array",
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "title",
+              "order"
+            ]
+          }
+        }
+      }
+    },
+    "papers": {
+      "type": "object",
+      "maxProperties": 132,
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "read",
+          "write"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "read": {
+            "type": "array",
+            "maxItems": 2,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "title",
+                "original"
+              ]
+            }
+          },
+          "write": {
+            "type": "array",
+            "maxItems": 2,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "title",
+                "original"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "object",
+      "maxProperties": 132,
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "read",
+          "write"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "read": {
+            "type": "array",
+            "maxItems": 3,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "title",
+                "content",
+                "paperIds"
+              ]
+            }
+          },
+          "write": {
+            "type": "array",
+            "maxItems": 3,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "title",
+                "content",
+                "paperIds"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "folders": {
+      "type": "object",
+      "maxProperties": 132,
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "read",
+          "write"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "read": {
+            "type": "array",
+            "maxItems": 3,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "name",
+                "paperIds",
+                "noteIds"
+              ]
+            }
+          },
+          "write": {
+            "type": "array",
+            "maxItems": 3,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "name",
+                "paperIds",
+                "noteIds"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
