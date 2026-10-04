@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use ShowPapers in software, research or patent documentation, please cite the repository revision and the protocol whitepaper. This is a citation request, not an additional license condition."
+message: "Please cite the protocol whitepaper and relevant ShowPapers protocol version when using or building upon this work in software, research, technical publications or patent applications. This citation request does not add conditions to the Apache License 2.0 or replace applicable patent-disclosure obligations."
 type: software
 title: "ShowPapers Format"
 authors:
@@ -15,6 +15,7 @@ preferred-citation:
       given-names: Nirbhay
     - family-names: Kulkarni
       given-names: Ameya
+  version: "1.0"
   year: 2026
   month: 10
   url: "https://protocol.showpapers.app/whitepaper.pdf"
