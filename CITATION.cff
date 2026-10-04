@@ -12,10 +12,13 @@ preferred-citation:
   title: "The ShowPapers Protocol: From Scattered Documents to Usable, Portable Records"
   authors:
     - family-names: Pherwani
-      given-names: Nirbhay
+      given-names: Nirbhay Ashok
+      orcid: "https://orcid.org/0000-0002-7591-2472"
     - family-names: Kulkarni
       given-names: Ameya
   version: "1.0"
   year: 2026
   month: 10
-  url: "https://protocol.showpapers.app/whitepaper.pdf"
+  date-published: "2026-10-04"
+  doi: "10.5281/zenodo.23146644"
+  url: "https://zenodo.org/records/23146644"

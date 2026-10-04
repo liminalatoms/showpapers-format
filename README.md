@@ -44,6 +44,12 @@ python3 -m unittest discover -s tests -v
 
 ## Whitepaper
 
+The version 1.0 technical report is archived on Zenodo: **[doi:10.5281/zenodo.23146644](https://doi.org/10.5281/zenodo.23146644)**.
+
+Pherwani, N. A., & Kulkarni, A. (2026). *The ShowPapers Protocol: From Scattered Documents to Usable, Portable Records* (Version 1.0) [Technical report]. Zenodo. https://doi.org/10.5281/zenodo.23146644
+
+This DOI identifies the whitepaper. Cite the repository revision as well when referring to a specific implementation.
+
 The [PDF](whitepaper/whitepaper.pdf) and [source bundle](whitepaper/whitepaper-source.zip) are the published paper for this repository revision. The bundle contains the LaTeX manuscript, editable Mermaid diagrams and pre-rendered figure PDFs. With a TeX distribution that includes `latexmk`, `pdflatex` and Latin Modern, compile it independently:
 
 ```sh
