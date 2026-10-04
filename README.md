@@ -42,6 +42,18 @@ python3 tool/showpapers_format.py discover
 python3 -m unittest discover -s tests -v
 ```
 
+## Whitepaper
+
+The [PDF](whitepaper/whitepaper.pdf) and [source bundle](whitepaper/whitepaper-source.zip) are the published paper for this repository revision. The bundle contains the LaTeX manuscript, editable Mermaid diagrams and pre-rendered figure PDFs. With a TeX distribution that includes `latexmk`, `pdflatex` and Latin Modern, compile it independently:
+
+```sh
+unzip whitepaper/whitepaper-source.zip -d paper-source
+cd paper-source
+latexmk -pdf -interaction=nonstopmode -halt-on-error showpapers-whitepaper.tex
+```
+
+The [website's paper](https://protocol.showpapers.app/whitepaper) follows its pinned repository revision. [`source.json`](https://protocol.showpapers.app/source.json) identifies that revision; a newer repository commit is published to the website only after synchronization and review.
+
 ## For AI Agents
 
 Use the root [SKILL.md](SKILL.md) to create, edit or validate collections. Its documentation and executable tools are included, so the folder is self-contained. You can ask an agent to read and use this local skill without installing it.

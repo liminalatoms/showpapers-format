@@ -22,4 +22,6 @@ python3 -m unittest discover -s tests -v
 
 The protocol website publishes a pinned, reviewed revision separately. Merging a pull request does not deploy the site; maintainers synchronize its documentation, tools, examples and downloads before publication. This repository's scope does not imply that the mobile apps or other projects are open source.
 
+The published whitepaper lives in `whitepaper/whitepaper.pdf` and `whitepaper/whitepaper-source.zip`. Submit manuscript or diagram changes with the corresponding regenerated PDF and complete source bundle. The bundle must compile independently using its included figure PDFs. Website maintainers then regenerate the HTML/SVG presentation from those same inputs and synchronize the reviewed commit. Do not update only the website's PDF or only the repository's manuscript. A packaging-only change to the source bundle's README does not require changing the paper's content or PDF.
+
 Contributions use this repository's existing [Apache License 2.0](LICENSE).
